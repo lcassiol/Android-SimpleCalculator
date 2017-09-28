@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Simple Calculator</string>
+    <string name="app_name">Cal-Culaee</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
 </resources>
