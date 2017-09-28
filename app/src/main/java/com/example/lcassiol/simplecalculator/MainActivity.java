@@ -1,21 +1,20 @@
 package com.example.lcassiol.simplecalculator;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
-    private TextView campoTexto;
-    float  numeroA = 0;
-    String operacao = "";
+    private TextView txtResult;
+    String lastInsertNumber = "";
+    ArrayList<Float> stackNumbers = new ArrayList<Float>();
+    ArrayList<String> stackOperations = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,32 +23,30 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        campoTexto = (TextView)findViewById(R.id.txtResult);
-        campoTexto.setText("0");
+        txtResult = (TextView)findViewById(R.id.txtResult);
+        txtResult.setText("0");
 
     }
 
     public  void calculate(View view){
         switch (view.getId()){
             case R.id.btnClear:
-                campoTexto.setText("0");
-                numeroA=0;
-                operacao="";
+                txtResult.setText("0");
                 break;
             case R.id.btnPlus:
-                calculaNumeros("+");
+                updateTxtResult("+");
                 break;
             case R.id.btnMinus:
-                calculaNumeros("-");
+                updateTxtResult("-");
                 break;
             case R.id.btnDiv:
-                calculaNumeros("/");
+                updateTxtResult("/");
                 break;
             case R.id.btnMulti:
-                calculaNumeros("*");
+                updateTxtResult("*");
                 break;
             case R.id.btnResult:
-                mostraResultado();
+                showResult();
                 break;
             default :
                 String numb;
@@ -60,45 +57,72 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void calculaNumeros(String tipoOperacao){
-        numeroA = Float.parseFloat(campoTexto.getText().toString());
-        operacao = tipoOperacao;
-        campoTexto.setText(campoTexto.getText().toString() + tipoOperacao);
+    public void updateTxtResult(String tipoOperacao){
+        float number = Float.parseFloat(txtResult.getText().toString());
+        stackNumbers.add(number);
+        lastInsertNumber = "";
+        stackOperations.add(tipoOperacao);
+        txtResult.setText(txtResult.getText().toString() + tipoOperacao);
     }
 
 
     public void getKeyboard(String str)
     {
-        //float atualValue = Float.parseFloat(campoTexto.getText().toString());
-        String ScrCurrent = campoTexto.getText().toString();//String.valueOf(atualValue);
-        float atualValue = Float.parseFloat(campoTexto.getText().toString());
-        float digitadoValue = Float.parseFloat(str);
+        String scrCurrent = "";
+        lastInsertNumber += str;
+        if(!txtResult.getText().toString().equalsIgnoreCase("0")){
+            scrCurrent = txtResult.getText().toString();
+        }
 
-        atualValue += digitadoValue;
-        campoTexto.setText(String.valueOf(atualValue));
+        scrCurrent += str;
+        txtResult.setText(scrCurrent);
     }
 
 
-    public void mostraResultado()
+    public void showResult()
     {
-        float numeroB = Integer.parseInt(campoTexto.getText().toString());
         float result = 0;
-        if(operacao.equals("+"))
-        {
-            result = numeroB + numeroA;
+        String currentOperation = "";
+        float newNumber = Float.parseFloat(lastInsertNumber.toString());
+        stackNumbers.add(newNumber);
+
+        for(int i = 0; i< stackNumbers.size() ; i++){
+
+            if(i==0){
+                result = stackNumbers.get(i);
+            }else{
+                result = makeOperation(result, stackNumbers.get(i), currentOperation);
+            }
+
+            if(stackOperations.size() > i){
+                currentOperation = stackOperations.get(i);
+            }
         }
-        if(operacao.equals("-"))
+
+        stackOperations.clear();
+        stackNumbers.clear();
+        txtResult.setText(String.valueOf(result));
+    }
+
+    public float makeOperation(float number1, float number2, String operation){
+        float result = 0;
+        if(operation.equals("+"))
         {
-            result = numeroA - numeroB;
+            result = number1 + number2;
         }
-        if(operacao.equals("*"))
+        if(operation.equals("-"))
         {
-            result = numeroB * numeroA;
+            result = number1 - number2;
         }
-        if(operacao.equals("/"))
+        if(operation.equals("*"))
         {
-            result = numeroA / numeroB;
+            result = number1 * number2;
         }
-        campoTexto.setText(String.valueOf(result));
+        if(operation.equals("/"))
+        {
+            result = number1 / number2;
+        }
+
+        return result;
     }
 }
